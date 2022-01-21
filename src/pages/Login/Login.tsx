@@ -1,7 +1,48 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import userApi from "../../api/userApi";
+import { addUser } from "../../app/auth/AuthSlice";
+import { RootState, useAppDispatch } from "../../app/store";
+import { User } from "../../app/types";
+import firebase, { auth } from "../../firebase/config";
 
-const Login = () => {
+const Login: React.FC = () => {
+    const { isValid, user } = useSelector((state: RootState) => state.auth);
+    const history = useNavigate();
+    const fbProvider = new firebase.auth.FacebookAuthProvider();
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
+    const dispatch = useAppDispatch();
+
+    const handleLogin = async (provider: any) => {
+        auth.signInWithPopup(provider).then(async (result) => {
+            const { additionalUserInfo, user } = result;
+            if (user) {
+                const newUser: User = {
+                    displayName: user.displayName,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    uuid: user.uid,
+                };
+                if (additionalUserInfo?.isNewUser) {
+                    try {
+                        const response = await userApi.createUser(newUser);
+                        console.log(response);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+                dispatch(addUser(newUser));
+            }
+        });
+    };
+
+    useEffect(() => {
+        if (isValid && user) {
+            history("/user/boards");
+        }
+    }, [isValid, user, history]);
     return (
         <LoginBody>
             <div className='wrapped'>
@@ -15,21 +56,33 @@ const Login = () => {
                             ></img>
                             <h1>Sign in </h1>
                             <div className='social-container'>
-                                <a href='#!' className='social'>
+                                <button
+                                    className='social'
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        handleLogin(fbProvider);
+                                    }}
+                                >
                                     <i className='fab fa-facebook-f'></i>
-                                </a>
-                                <a href='#!' className='social'>
+                                </button>
+                                <button
+                                    className='social'
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        handleLogin(googleProvider);
+                                    }}
+                                >
                                     <i className='fab fa-google-plus-g'></i>
-                                </a>
-                                <a href='#!' className='social'>
+                                </button>
+                                <button className='social'>
                                     <i className='fab fa-microsoft'></i>
-                                </a>
+                                </button>
                             </div>
                             <span>or use your account</span>
                             <input type='email' placeholder='Email' />
                             <input type='password' placeholder='Password' />
                             <a href='#!'>Forgot your password?</a>
-                            <button>Sign In</button>
+                            <button className='btnLogin'>Sign In</button>
                         </form>
                     </div>
                 </div>
@@ -68,14 +121,15 @@ const LoginBody = styled.div`
         font-size: 12px;
     }
 
-    a {
+    a,
+    .social {
         color: #333;
         font-size: 14px;
         text-decoration: none;
         margin: 15px 0;
     }
 
-    button {
+    .btnLogin {
         border-radius: 20px;
         border: 1px solid #ff4b2b;
         background-color: #ff4b2b;
@@ -89,15 +143,15 @@ const LoginBody = styled.div`
         cursor: pointer;
     }
 
-    button:active {
+    .btnLogin:active {
         transform: scale(0.95);
     }
 
-    button:focus {
+    .btnLogin:focus {
         outline: none;
     }
 
-    button.ghost {
+    .btnLogin.ghost {
         background-color: transparent;
         border-color: #ffffff;
     }
@@ -168,7 +222,7 @@ const LoginBody = styled.div`
         margin: 20px 0;
     }
 
-    .social-container a {
+    .social-container .social {
         border: 1px solid #dddddd;
         border-radius: 50%;
         display: inline-flex;
@@ -177,6 +231,7 @@ const LoginBody = styled.div`
         margin: 0 5px;
         height: 40px;
         width: 40px;
+        cursor: pointer;
     }
 
     img {

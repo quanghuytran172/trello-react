@@ -1,9 +1,13 @@
 import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const ProtectedRoutes = () => {
-    const isAuth = false;
-    return isAuth ? <Outlet /> : <Navigate to='/login' />;
+import { Navigate, Outlet } from "react-router-dom";
+import { RootState } from "./app/store";
+
+const ProtectedRoutes: React.FC = () => {
+    const { isValid, user } = useSelector((state: RootState) => state.auth);
+
+    return isValid && user ? <Outlet /> : <Navigate to='/login' />;
 };
 
 export default ProtectedRoutes;
