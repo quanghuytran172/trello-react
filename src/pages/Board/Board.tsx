@@ -1,7 +1,11 @@
 import React from "react";
-
+import Header from "../../components/Header/Header";
 const Board: React.FC = () => {
-    return <div>Board</div>;
+    return (
+        <div>
+            <Header />
+        </div>
+    );
 };
 
 export default Board;

@@ -11,7 +11,12 @@ const auth = createSlice({
     initialState,
     reducers: {
         addUser: (state, action) => {
-            return { ...state, isValid: true, user: action.payload };
+            const newUser = action.payload;
+            return {
+                ...state,
+                isValid: true,
+                user: { ...newUser },
+            };
         },
         signOut: (state, action) => {
             return action.payload;

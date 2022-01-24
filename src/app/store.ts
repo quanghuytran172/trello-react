@@ -13,6 +13,7 @@ import storage from "redux-persist/lib/storage";
 
 import { useDispatch } from "react-redux";
 import authReducer from "./auth/AuthSlice";
+import boardReducer from "./boards/BoardSlice";
 
 const persistConfig = {
     key: "root",
@@ -23,6 +24,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
     auth: authReducer,
+    boards: boardReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

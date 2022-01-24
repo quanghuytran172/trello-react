@@ -28,7 +28,8 @@ const Login: React.FC = () => {
                 if (additionalUserInfo?.isNewUser) {
                     try {
                         const response = await userApi.createUser(newUser);
-                        console.log(response);
+                        dispatch(addUser(response));
+                        return;
                     } catch (error) {
                         console.log(error);
                     }
@@ -40,7 +41,8 @@ const Login: React.FC = () => {
 
     useEffect(() => {
         if (isValid && user) {
-            history("/user/boards");
+            const [userName] = user.email.split(/(?<=^.+)@(?=[^@]+$)/);
+            history(`/${userName}/boards`);
         }
     }, [isValid, user, history]);
     return (

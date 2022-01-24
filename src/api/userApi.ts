@@ -6,6 +6,11 @@ const userApi = {
         const url = "/users";
         return axiosClient.post(url, user);
     },
+
+    getUser: (uuid: String) => {
+        const url = `/users?uuid=${uuid}`;
+        return axiosClient.get(url);
+    },
 };
 
 export default userApi;
