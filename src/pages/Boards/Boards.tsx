@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import Header from "../../components/Header/Header";
 import { Row, Col } from "antd";
-
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../../app/store";
@@ -9,9 +8,8 @@ import styled from "styled-components";
 import boardApi from "../../api/boardApi";
 import { setBoard, toggleAddModal } from "../../app/boards/BoardSlice";
 import BoardItem from "../../components/Board/BoardItem";
-import userApi from "../../api/userApi";
-import { addUser } from "../../app/auth/AuthSlice";
 import AddBoardModal from "../../components/Modals/AddBoardModal";
+import { Board } from "../../app/types";
 const BoardContainer = styled.div`
     width: 100%;
     max-width: 1250px;
@@ -55,7 +53,7 @@ const Boards: React.FC = () => {
     const history = useNavigate();
     const dispatch = useAppDispatch();
     const {
-        user: { email, userId, uuid },
+        user: { email, uuidUser },
     } = useSelector((state: RootState) => state.auth);
     const boards = useSelector((state: RootState) => state.boards.boards);
 
@@ -80,41 +78,31 @@ const Boards: React.FC = () => {
     useEffect(() => {
         const fetchBoard = async (id: String) => {
             try {
-                const response = await boardApi.getBoardById(id);
+                const response = await boardApi.getAllBoardByUser(id);
                 dispatch(setBoard(response));
             } catch (error) {
                 alert(error);
             }
         };
-        const getUserId = async (uuid: String) => {
-            try {
-                const response: any = await userApi.getUser(uuid);
-                console.log(response[0]);
-                dispatch(addUser(response[0]));
-            } catch (error) {
-                console.log(error);
-            }
-        };
-        if (!userId) {
-            getUserId(uuid);
-        }
-        fetchBoard(userId);
-    }, [dispatch, userId, uuid]);
+
+        fetchBoard(uuidUser);
+        document.body.style.backgroundImage = "none";
+    }, [dispatch, uuidUser]);
 
     return (
         <div>
-            <Header />
+            <Header isBoardPage={true} />
             <BoardContainer>
                 <h2>YOUR WORKSPACES</h2>
                 <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-                    {boards.map((board: any) => (
+                    {boards.map((board: Board, index: number) => (
                         <Col
                             xs={24}
                             sm={12}
                             xl={4}
                             md={6}
                             className='col-item'
-                            key={board.boardId}
+                            key={index}
                         >
                             <BoardItem
                                 board={board}

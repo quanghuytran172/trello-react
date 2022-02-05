@@ -16,6 +16,7 @@ function App() {
                         <Route path='/' element={<Boards />} />
                         <Route path='/:user/boards' element={<Boards />} />
                         <Route path='/b/:id/:name' element={<Board />} />
+                        <Route path='/b/:id/' element={<Board />} />
                     </Route>
                     <Route path='*' element={<NotFound />} />
                 </Routes>

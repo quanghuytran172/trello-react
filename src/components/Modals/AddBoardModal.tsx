@@ -21,12 +21,14 @@ const AddBoardModal = () => {
                 const date = new Date();
                 const newBoard = {
                     boardId: shortid.generate(),
-                    userId: user.userId,
+                    uuidUser: user.uuidUser,
                     name: titleInput,
                     createdAt: date,
                     accessId: [],
                     imageURL:
-                        "https://media.istockphoto.com/photos/kids-jumping-and-running-at-home-during-the-covid19-pandemic-picture-id1309632440?b=1&k=20&m=1309632440&s=170667a&w=0&h=d0x-ZqV8bwPM9xxaNcNScAACT0Igd1MCTcq9KsKTyHU=",
+                        "https://trello-backgrounds.s3.amazonaws.com/SharedBackground/2106x1600/57727b42ab34b4fef30c3ed8ba4a71f3/photo-1643330683233-ff2ac89b002c.jpg",
+                    listOrder: [],
+                    id: null,
                 };
                 const response = await boardApi.createBoard(newBoard);
                 dispatch(addBoard(response));
@@ -54,6 +56,7 @@ const AddBoardModal = () => {
                 visible={isModalVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
+                destroyOnClose={true}
             >
                 <Form form={form} layout='vertical' autoComplete='off'>
                     <Form.Item name='url' label='Title'>

@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { Board } from "../types";
 
 // Define the initial state using that type
 const initialState: any = {
@@ -19,9 +20,17 @@ const boards = createSlice({
         toggleAddModal: (state, action) => {
             state.isModalVisible = action.payload;
         },
+        updateBoardName: (state, action) => {
+            state.boards = state.boards.map((board: Board) => {
+                if (board.boardId === action.payload.id) {
+                    board.name = action.payload.data;
+                }
+                return board;
+            });
+        },
     },
 });
 
 const { reducer, actions } = boards;
-export const { addBoard, setBoard, toggleAddModal } = actions;
+export const { addBoard, setBoard, toggleAddModal, updateBoardName } = actions;
 export default reducer;

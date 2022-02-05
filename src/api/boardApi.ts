@@ -6,9 +6,21 @@ const boardApi = {
         const url = "/board";
         return axiosClient.post(url, board);
     },
-    getBoardById: (id: String) => {
-        const url = `/board?userId=${id}`;
+    deleteBoard: (id: String) => {
+        const url = `/board/${id}`;
+        return axiosClient.delete(url);
+    },
+    getAllBoardByUser: (id: String) => {
+        const url = `/board?uuidUser=${id}`;
         return axiosClient.get(url);
+    },
+    getBoardById: (id: any) => {
+        const url = `/board?boardId=${id}`;
+        return axiosClient.get(url);
+    },
+    updateNameBoard: (id: String, data: any) => {
+        const url = `/board/${id}`;
+        return axiosClient.patch(url, data);
     },
 };
 

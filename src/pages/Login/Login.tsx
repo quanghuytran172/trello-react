@@ -16,14 +16,14 @@ const Login: React.FC = () => {
     const dispatch = useAppDispatch();
 
     const handleLogin = async (provider: any) => {
-        auth.signInWithPopup(provider).then(async (result) => {
+        auth.signInWithPopup(provider).then(async (result: any) => {
             const { additionalUserInfo, user } = result;
             if (user) {
                 const newUser: User = {
                     displayName: user.displayName,
                     email: user.email,
                     photoURL: user.photoURL,
-                    uuid: user.uid,
+                    uuidUser: user.uid,
                 };
                 if (additionalUserInfo?.isNewUser) {
                     try {

@@ -43,6 +43,7 @@ const Menu: React.FunctionComponent<MenuProps> = styled(AntMenu)`
         }
     }
 `;
+
 const HeaderComponent = styled.header`
     max-height: 44px;
     padding: 6px 4px;
@@ -51,6 +52,9 @@ const HeaderComponent = styled.header`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    &.background-main {
+        background-color: #026aa7;
+    }
 `;
 const HeaderTSide = styled.div`
     height: 32px;
@@ -115,7 +119,7 @@ const LogoImg = styled.div<StyleProps>`
     background-position: center;
 `;
 
-const Header = () => {
+const Header = ({ isBoardPage }: any) => {
     const { user } = useSelector((state: RootState) => state.auth);
     const dispatch = useAppDispatch();
 
@@ -151,7 +155,7 @@ const Header = () => {
         </Menu>
     );
     return (
-        <HeaderComponent>
+        <HeaderComponent className={isBoardPage && "background-main"}>
             <HeaderTSide>
                 <Link to='/'>
                     <AppstoreOutlined />

@@ -1,18 +1,19 @@
 export type Card = {};
 
 export type User = {
-    userId?: String | null;
-    displayName: String | null;
-    email: String | null;
-    photoURL: String | null;
-    uuid: String | null;
+    uuidUser: String;
+    displayName: String;
+    email: String;
+    photoURL: String;
 };
 
 export type Board = {
     boardId: String;
-    userId: String;
+    uuidUser: String;
     name: String;
     createdAt: Date;
     accessId: String[];
     imageURL: String;
+    listOrder: String[];
+    id: String | null;
 };
