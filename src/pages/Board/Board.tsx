@@ -70,10 +70,6 @@ const ShowMenuButton = styled.button`
 
 const Board: React.FC = () => {
     const [isVisibleBoardMenu, setIsVisibleBoardMenu] = useState(false);
-
-    const showDrawer = () => {
-        setIsVisibleBoardMenu(true);
-    };
     const { boards } = useSelector((state: RootState) => state.boards);
     const [boardCurrent, setBoardCurrent] = useState<BoardType>();
 
@@ -81,6 +77,9 @@ const Board: React.FC = () => {
     const dispatch = useAppDispatch();
     const history = useNavigate();
 
+    const showDrawer = () => {
+        setIsVisibleBoardMenu(true);
+    };
     useEffect(() => {
         const checkParams = async () => {
             let findBoard = boards.find(
@@ -114,6 +113,7 @@ const Board: React.FC = () => {
         };
 
         checkParams();
+
         //call api get list,card
     }, [dispatch, boardCurrent, history, boards, id]);
 
@@ -123,10 +123,7 @@ const Board: React.FC = () => {
             {boardCurrent && (
                 <BoardTop>
                     <div className='board-name'>
-                        <InlineEdit
-                            value={boardCurrent}
-                            setState={setBoardCurrent}
-                        />
+                        <InlineEdit boardCurrent={boardCurrent} />
                         <Divider type='vertical' />
                         <Avatar.Group
                             maxCount={2}

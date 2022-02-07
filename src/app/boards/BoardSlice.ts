@@ -28,9 +28,23 @@ const boards = createSlice({
                 return board;
             });
         },
+        updateBoardImage: (state, action) => {
+            state.boards = state.boards.map((board: Board) => {
+                if (board.boardId === action.payload.id) {
+                    board.imageURL = action.payload.data;
+                }
+                return board;
+            });
+        },
     },
 });
 
 const { reducer, actions } = boards;
-export const { addBoard, setBoard, toggleAddModal, updateBoardName } = actions;
+export const {
+    addBoard,
+    setBoard,
+    toggleAddModal,
+    updateBoardName,
+    updateBoardImage,
+} = actions;
 export default reducer;

@@ -18,7 +18,7 @@ const boardApi = {
         const url = `/board?boardId=${id}`;
         return axiosClient.get(url);
     },
-    updateNameBoard: (id: String, data: any) => {
+    updateBoard: (id: String, data: any) => {
         const url = `/board/${id}`;
         return axiosClient.patch(url, data);
     },

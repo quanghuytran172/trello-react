@@ -24,8 +24,8 @@ const InputStyle = styled.input`
     }
 `;
 
-const InlineEdit = ({ value, setState }: any) => {
-    const [editingValue, setEditingValue] = useState(value.name);
+const InlineEdit = ({ boardCurrent }: any) => {
+    const [editingValue, setEditingValue] = useState(boardCurrent.name);
     const dispatch = useAppDispatch();
 
     let width = (editingValue.length + 10) * 8;
@@ -45,14 +45,17 @@ const InlineEdit = ({ value, setState }: any) => {
 
     const onBlur = async (event: React.ChangeEvent<HTMLInputElement>) => {
         let newName = event.target.value;
-        if (newName !== value.name) {
+        if (newName !== boardCurrent.name) {
             try {
-                const response: any = await boardApi.updateNameBoard(value.id, {
-                    name: newName,
-                });
+                const response: any = await boardApi.updateBoard(
+                    boardCurrent.id,
+                    {
+                        name: newName,
+                    }
+                );
                 dispatch(
                     updateBoardName({
-                        id: value.boardId,
+                        id: boardCurrent.boardId,
                         data: response.name,
                     })
                 );
