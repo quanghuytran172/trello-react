@@ -238,7 +238,7 @@ const BoardMenu = (props: BoardMenuProps) => {
 
     const fetchImage = () => {
         api.photos
-            .getRandom({ count: 4, collectionIds: ["Ouh8jd8l8Wo"] })
+            .getRandom({ count: 20, collectionIds: ["Ouh8jd8l8Wo"] })
             .then((result: any) => {
                 if (result.type === "success") {
                     setPhotosResponse(result);
@@ -316,13 +316,11 @@ const BoardMenu = (props: BoardMenuProps) => {
                             </span>
                             <div className='content'>Change background</div>
                         </DrawerContent>
-                        <DrawerContent>
+                        <DrawerContent onClick={confirm}>
                             <span>
                                 <DeleteOutlined />
                             </span>
-                            <div className='content' onClick={confirm}>
-                                Delete board
-                            </div>
+                            <div className='content'>Delete board</div>
                         </DrawerContent>
                     </>
                 )}

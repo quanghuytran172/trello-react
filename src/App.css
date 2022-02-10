@@ -8,4 +8,16 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center center;
+    height: 100vh;
+    max-height: 100vh;
+    min-height: 100vh;
+}
+
+#root {
+    height: 100%;
+}
+
+.App {
+    height: 100%;
+    overflow: hidden;
 }

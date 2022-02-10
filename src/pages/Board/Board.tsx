@@ -16,7 +16,23 @@ import Header from "../../components/Header/Header";
 import InlineEdit from "../../components/InlineEdit/InlineEdit";
 import { Board as BoardType } from "../../app/types/index";
 import BoardMenu from "../../components/Board/BoardMenu";
+import BoardContent from "../../components/Board/BoardContent/BoardContent";
 
+const BoardWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 44px);
+    position: relative;
+`;
+
+const BoardMainWrapper = styled.div`
+    flex-grow: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+`;
 const BoardTop = styled.div`
     max-width: 100%;
     padding: 15px;
@@ -118,55 +134,67 @@ const Board: React.FC = () => {
     }, [dispatch, boardCurrent, history, boards, id]);
 
     return (
-        <div>
+        <>
             <Header />
             {boardCurrent && (
-                <BoardTop>
-                    <div className='board-name'>
-                        <InlineEdit boardCurrent={boardCurrent} />
-                        <Divider type='vertical' />
-                        <Avatar.Group
-                            maxCount={2}
-                            maxStyle={{
-                                color: "#f56a00",
-                                backgroundColor: "#fde3cf",
-                            }}
-                        >
-                            <Avatar src='https://joeschmoe.io/api/v1/random' />
-                            <Avatar style={{ backgroundColor: "#f56a00" }}>
-                                K
-                            </Avatar>
-                            <Tooltip title='Ant User' placement='top'>
-                                <Avatar
-                                    style={{ backgroundColor: "#87d068" }}
-                                    icon={<UserOutlined />}
-                                />
-                            </Tooltip>
-                            <Avatar
-                                style={{ backgroundColor: "#1890ff" }}
-                                icon={<AntDesignOutlined />}
-                            />
-                        </Avatar.Group>
-                        <Button type='primary' className='add-member'>
-                            <UserAddOutlined />
-                            Invite
-                        </Button>
-                    </div>
+                <BoardWrapper>
+                    <BoardMainWrapper>
+                        <BoardTop>
+                            <div className='board-name'>
+                                <InlineEdit boardCurrent={boardCurrent} />
+                                <Divider type='vertical' />
+                                <Avatar.Group
+                                    maxCount={2}
+                                    maxStyle={{
+                                        color: "#f56a00",
+                                        backgroundColor: "#fde3cf",
+                                    }}
+                                >
+                                    <Avatar src='https://joeschmoe.io/api/v1/random' />
+                                    <Avatar
+                                        style={{ backgroundColor: "#f56a00" }}
+                                    >
+                                        K
+                                    </Avatar>
+                                    <Tooltip title='Ant User' placement='top'>
+                                        <Avatar
+                                            style={{
+                                                backgroundColor: "#87d068",
+                                            }}
+                                            icon={<UserOutlined />}
+                                        />
+                                    </Tooltip>
+                                    <Avatar
+                                        style={{ backgroundColor: "#1890ff" }}
+                                        icon={<AntDesignOutlined />}
+                                    />
+                                </Avatar.Group>
+                                <Button type='primary' className='add-member'>
+                                    <UserAddOutlined />
+                                    Invite
+                                </Button>
+                            </div>
 
-                    <div className='board-menu'>
-                        <ShowMenuButton onClick={showDrawer}>
-                            <DashOutlined />
-                            <span className='show-title'>Show menu</span>
-                        </ShowMenuButton>
-                    </div>
-                    <BoardMenu
-                        visible={isVisibleBoardMenu}
-                        setVisible={setIsVisibleBoardMenu}
-                        currentBoard={boardCurrent}
-                    />
-                </BoardTop>
+                            <div className='board-menu'>
+                                <ShowMenuButton onClick={showDrawer}>
+                                    <DashOutlined />
+                                    <span className='show-title'>
+                                        Show menu
+                                    </span>
+                                </ShowMenuButton>
+                            </div>
+                            <BoardMenu
+                                visible={isVisibleBoardMenu}
+                                setVisible={setIsVisibleBoardMenu}
+                                currentBoard={boardCurrent}
+                            />
+                        </BoardTop>
+
+                        <BoardContent />
+                    </BoardMainWrapper>
+                </BoardWrapper>
             )}
-        </div>
+        </>
     );
 };
 

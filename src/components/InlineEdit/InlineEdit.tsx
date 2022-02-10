@@ -44,6 +44,7 @@ const InlineEdit = ({ boardCurrent }: any) => {
     };
 
     const onBlur = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(123);
         let newName = event.target.value;
         if (newName !== boardCurrent.name) {
             try {
