@@ -13,10 +13,15 @@ import boardApi from "../../api/boardApi";
 import { addBoard } from "../../app/boards/BoardSlice";
 import { RootState, useAppDispatch } from "../../app/store";
 import Header from "../../components/Header/Header";
-import InlineEdit from "../../components/InlineEdit/InlineEdit";
+import BoardNameInline from "../../components/InlineEdit/BoardNameInline";
 import { Board as BoardType } from "../../app/types/index";
 import BoardMenu from "../../components/Board/BoardMenu";
 import BoardContent from "../../components/Board/BoardContent/BoardContent";
+import columnApi from "../../api/columnApi";
+import { setColumns } from "../../app/columns/ColumnSlice";
+import { mapOrder } from "../../utilities/sortArr";
+import cardApi from "../../api/cardApi";
+import { setCard } from "../../app/cards/CardSlice";
 
 const BoardWrapper = styled.div`
     display: flex;
@@ -87,6 +92,7 @@ const ShowMenuButton = styled.button`
 const Board: React.FC = () => {
     const [isVisibleBoardMenu, setIsVisibleBoardMenu] = useState(false);
     const { boards } = useSelector((state: RootState) => state.boards);
+
     const [boardCurrent, setBoardCurrent] = useState<BoardType>();
 
     let { id } = useParams();
@@ -97,7 +103,7 @@ const Board: React.FC = () => {
         setIsVisibleBoardMenu(true);
     };
     useEffect(() => {
-        const checkParams = async () => {
+        const checkParamsGetBoard = async () => {
             let findBoard = boards.find(
                 (board: any) => board.boardId.toString() === id?.toString()
             );
@@ -128,11 +134,42 @@ const Board: React.FC = () => {
             document.body.style.backgroundImage = `url(${findBoard?.imageURL})`;
         };
 
-        checkParams();
-
-        //call api get list,card
+        checkParamsGetBoard();
     }, [dispatch, boardCurrent, history, boards, id]);
 
+    useEffect(() => {
+        const fetchColumn = async (boardId: String) => {
+            try {
+                const response = await columnApi.getAllColumnByBoardId(
+                    boardId.toString()
+                );
+                dispatch(
+                    setColumns(
+                        mapOrder(response, boardCurrent?.listOrder, "id")
+                    )
+                );
+            } catch (error) {
+                alert(error);
+            }
+        };
+
+        const fetchCard = async (boardId: String) => {
+            try {
+                const response = await cardApi.getAllCardByBoardId(
+                    boardId.toString()
+                );
+                dispatch(setCard(response));
+            } catch (error) {
+                alert(error);
+            }
+        };
+
+        //call api get list,card
+        if (boardCurrent && boardCurrent.id) {
+            fetchColumn(boardCurrent.id);
+            fetchCard(boardCurrent.id);
+        }
+    }, [dispatch, boardCurrent]);
     return (
         <>
             <Header />
@@ -141,7 +178,7 @@ const Board: React.FC = () => {
                     <BoardMainWrapper>
                         <BoardTop>
                             <div className='board-name'>
-                                <InlineEdit boardCurrent={boardCurrent} />
+                                <BoardNameInline boardCurrent={boardCurrent} />
                                 <Divider type='vertical' />
                                 <Avatar.Group
                                     maxCount={2}
@@ -189,8 +226,7 @@ const Board: React.FC = () => {
                                 currentBoard={boardCurrent}
                             />
                         </BoardTop>
-
-                        <BoardContent />
+                        <BoardContent currentBoard={boardCurrent} />
                     </BoardMainWrapper>
                 </BoardWrapper>
             )}

@@ -36,6 +36,15 @@ const boards = createSlice({
                 return board;
             });
         },
+
+        updateListOrder: (state, action) => {
+            state.boards = state.boards.map((board: Board) => {
+                if (board.boardId === action.payload.id) {
+                    board.listOrder = action.payload.data;
+                }
+                return board;
+            });
+        },
     },
 });
 
@@ -46,5 +55,6 @@ export const {
     toggleAddModal,
     updateBoardName,
     updateBoardImage,
+    updateListOrder,
 } = actions;
 export default reducer;

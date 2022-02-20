@@ -1,9 +1,22 @@
-import React, { useRef, useState } from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Container, Draggable } from "react-smooth-dnd";
 import Card from "../Card/Card";
 import { CloseOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import InputColumnHeader from "../InlineEdit/InputColumnHeader";
+import InlineEdit from "../InlineEdit/InlineEdit";
+import { applyDrag } from "../../utilities/dragDrop";
+import columnApi from "../../api/columnApi";
+import { RootState, useAppDispatch } from "../../app/store";
+import {
+    updateCardOrder,
+    updateColumnName,
+} from "../../app/columns/ColumnSlice";
+import { useSelector } from "react-redux";
+import { Card as CardType } from "../../app/types";
+import { addCard, updateListId } from "../../app/cards/CardSlice";
+import { mapOrder } from "../../utilities/sortArr";
+import cardApi from "../../api/cardApi";
 
 const ColumnWrapper = styled.div`
     box-sizing: border-box;
@@ -85,7 +98,7 @@ const AddCardButton = styled.span`
     display: block;
     flex: 1 0 auto;
     padding: 5px 5px 5px 10px;
-    margin: 5px;
+    margin: 0 5px 5px 5px;
     position: relative;
     text-decoration: none;
     -webkit-user-select: none;
@@ -163,145 +176,78 @@ const FormAddCard = styled.div`
         }
     }
 `;
-const Column = ({ column }: any) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [columnNameInput, setColumnNameInput] = useState(column.name);
-
-    const inputHeaderRef = useRef<HTMLTextAreaElement>(column.name);
-
-    const addCardRef = useRef<any>(null);
-
+const Column = ({ column, deleteColumn }: any) => {
     const [addCardButton, setAddCardButton] = useState(false);
-    const [cards, setCards] = useState([
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-        {
-            createdAt: "2022-01-25T19:14:09.381Z",
-            name: "Angelina DuBuque",
-            listId: "listId 2",
-            boardId: "boardId 2",
-            cardId: "5",
-        },
-    ]);
-    const onCardDrop = (dropResult: any) => {
-        console.log(dropResult);
+    const [isEditing, setIsEditing] = useState(false);
+    const [columnNameInput, setColumnNameInput] = useState("");
+    const [cardsByColumn, setCardsByColumn] = useState([]);
+    const inputHeaderRef = useRef<HTMLTextAreaElement>(column.name);
+    const addCardRef = useRef<any>(null);
+    const dispatch = useAppDispatch();
+    const { cards } = useSelector((state: RootState) => state.cards);
+
+    useEffect(() => {
+        let cardByColumn = cards.filter((c: any) => c.listId === column.id);
+        cardByColumn = mapOrder(cardByColumn, column.cardOrder, "id");
+        setCardsByColumn(cardByColumn);
+    }, [cards, column.cardOrder, column.id]);
+    const onCardDrop = async (columnId: any, dropResult: any) => {
+        if (
+            dropResult.removedIndex !== null ||
+            dropResult.addedIndex !== null
+        ) {
+            let newCards = [...cardsByColumn];
+            newCards = applyDrag(newCards, dropResult);
+            const newCardOrder = newCards.map((i: any) => i.id);
+            dispatch(
+                updateCardOrder({
+                    id: columnId,
+                    data: newCardOrder,
+                })
+            );
+
+            if (
+                dropResult.removedIndex !== null &&
+                dropResult.addedIndex !== null
+            ) {
+                //Move insite list (update cardOrder)
+                columnApi
+                    .updateColumn(columnId, {
+                        cardOrder: newCardOrder,
+                    })
+                    .then(() => {})
+                    .catch(() => {
+                        setCardsByColumn(cardsByColumn);
+                    });
+            } else {
+                //Move outsite list (update columnId,cardOrder)
+                if (dropResult.addedIndex !== null) {
+                    try {
+                        dispatch(
+                            updateListId({
+                                id: dropResult.payload.id,
+                                data: columnId,
+                            })
+                        );
+                        const cardResponse = await cardApi.updateCard(
+                            dropResult.payload.id,
+                            {
+                                listId: columnId,
+                            }
+                        );
+
+                        const columnResponse = await columnApi.updateColumn(
+                            columnId,
+                            {
+                                cardOrder: newCardOrder,
+                            }
+                        );
+                    } catch (error) {
+                        setCardsByColumn(cardsByColumn);
+                    }
+                }
+            }
+        }
     };
 
     const onHandleAddCard = () => {
@@ -309,12 +255,74 @@ const Column = ({ column }: any) => {
             setAddCardButton(false);
             return;
         }
-        console.log("Add");
-        addCardRef.current.value = "";
-        addCardRef.current.style.height = "0px";
+        const date = new Date();
+        const newCard: CardType = {
+            id: null,
+            name: addCardRef.current.value,
+            description: "",
+            listId: column.id,
+            boardId: column.boardId,
+            createdAt: date,
+        };
+        cardApi
+            .createCard(newCard)
+            .then((cardResponse: any) => {
+                let newCards = [...cardsByColumn];
+                const newCardOrder = newCards.map((i: any) => i.id);
+                newCardOrder.push(cardResponse.id);
+                columnApi
+                    .updateColumn(column.id, {
+                        cardOrder: newCardOrder,
+                    })
+                    .then(() => {
+                        dispatch(addCard(cardResponse));
+                        dispatch(
+                            updateCardOrder({
+                                id: column.id,
+                                data: newCardOrder,
+                            })
+                        );
+                        addCardRef.current.value = "";
+                        addCardRef.current.style.height = "0px";
+                        addCardRef.current.focus();
+                    })
+                    .catch((err) => alert(err));
+            })
+            .catch((err) => alert(err));
+
         //Handle data
     };
 
+    const onHandleColumnTitleChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setIsEditing(!isEditing);
+        let newName = event.target.value;
+        if (newName === "") {
+            newName = column.name;
+            setColumnNameInput(newName);
+        }
+        if (newName !== column.name) {
+            //update column name
+            setColumnNameInput(newName);
+            columnApi
+                .updateColumn(column.id, {
+                    name: newName,
+                })
+                .then(() => {
+                    dispatch(
+                        updateColumnName({
+                            id: column.id,
+                            data: newName,
+                        })
+                    );
+                })
+                .catch((err) => {
+                    alert(err);
+                    setColumnNameInput(column.name);
+                });
+        }
+    };
     const onKeyDownHandle = (event: React.KeyboardEvent<any>) => {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -330,6 +338,9 @@ const Column = ({ column }: any) => {
         }
     };
 
+    useEffect(() => {
+        setColumnNameInput(column.name);
+    }, [column.name]);
     return (
         <ColumnWrapper>
             <ColumnContent>
@@ -342,42 +353,28 @@ const Column = ({ column }: any) => {
                         }
                         onClick={() => {
                             setIsEditing(!isEditing);
-                            inputHeaderRef.current.selectionStart =
-                                inputHeaderRef.current.value.length;
-                            inputHeaderRef.current.selectionEnd =
-                                inputHeaderRef.current.value.length;
-                            inputHeaderRef.current.focus();
+                            inputHeaderRef.current.select();
                         }}
                     ></div>
-                    <InputColumnHeader
+                    <InlineEdit
                         inputHeaderRef={inputHeaderRef}
-                        onBlur={(
-                            event: React.ChangeEvent<HTMLInputElement>
-                        ) => {
-                            setIsEditing(!isEditing);
-                            let newName = event.target.value;
-                            if (newName === "") {
-                                newName = column.name;
-                                setColumnNameInput(column.name);
-                            }
-                            if (newName !== column.name) {
-                                //update column name
-                                column.name = newName;
-                                console.log(inputHeaderRef.current.value);
-                            }
-                        }}
+                        onBlur={onHandleColumnTitleChange}
                         setValue={setColumnNameInput}
                         value={columnNameInput}
-                    ></InputColumnHeader>
-                    <button className='button-delete'>
+                    ></InlineEdit>
+
+                    <button
+                        className='button-delete'
+                        onClick={() => deleteColumn(column.id)}
+                    >
                         <DeleteOutlined />
                     </button>
                 </ColumnHeader>
                 <Container
                     {...column.props}
                     groupName='column-trello'
-                    onDrop={onCardDrop}
-                    getChildPayload={(index) => cards[index]}
+                    onDrop={(dropResult) => onCardDrop(column.id, dropResult)}
+                    getChildPayload={(index) => cardsByColumn[index]}
                     dragClass='card-ghost'
                     dropClass='card-ghost-drop'
                     dropPlaceholder={{
@@ -387,9 +384,9 @@ const Column = ({ column }: any) => {
                     }}
                     dropPlaceholderAnimationDuration={200}
                 >
-                    {cards.map((card, index) => (
+                    {cardsByColumn.map((card: CardType, index: any) => (
                         <Draggable key={index}>
-                            <Card card={card} />
+                            <Card card={card} columnName={column.name} />
                         </Draggable>
                     ))}
                     {addCardButton && (

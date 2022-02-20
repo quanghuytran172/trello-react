@@ -1,7 +1,22 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import React, { useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { Container, Draggable } from "react-smooth-dnd";
 import styled from "styled-components";
+import boardApi from "../../../api/boardApi";
+import cardApi from "../../../api/cardApi";
+import columnApi from "../../../api/columnApi";
+import { updateListOrder, setBoard } from "../../../app/boards/BoardSlice";
+import { removeCardByColumnId, setCard } from "../../../app/cards/CardSlice";
+import {
+    addColumn,
+    removeColumn,
+    setColumns,
+} from "../../../app/columns/ColumnSlice";
+import { RootState, useAppDispatch } from "../../../app/store";
+import { Card, Column as ColumnType } from "../../../app/types";
+import { applyDrag } from "../../../utilities/dragDrop";
 import Column from "../../Column/Column";
 
 const BoardContainerWrapper = styled.div`
@@ -33,7 +48,6 @@ const BoardContainerWrapper = styled.div`
     }
     #board::-webkit-scrollbar-thumb {
         border-radius: 6px;
-
         background-color: #ffffff6e;
     }
     #board::-webkit-scrollbar-track-piece {
@@ -159,79 +173,105 @@ const FormAddColumn = styled.div`
     }
 `;
 
-const BoardContent = () => {
+const BoardContent = ({ currentBoard }: any) => {
     const [addColumnButton, setAddColumnButton] = useState(false);
     const inputRef = useRef<any>();
+    const { columns } = useSelector((state: RootState) => state.columns);
+    const { boards } = useSelector((state: RootState) => state.boards);
+    const { cards } = useSelector((state: RootState) => state.cards);
 
-    const [columns, setColumns] = useState([
-        {
-            boardId: "boardId 2",
-            name: "Mae Barton1",
-            listId: "1",
-            cardOrder: [],
-        },
+    const dispatch = useAppDispatch();
+    const onColumnDrop = async (dropResult: any) => {
+        let newColumns = [...columns];
+        newColumns = applyDrag(newColumns, dropResult);
+        const listOrder = newColumns.map((c) => c.id);
 
-        {
-            boardId: "boardId 3",
-            name: "Mae Barton3",
-            listId: "1",
-            cardOrder: [],
-        },
-        {
-            boardId: "boardId 3",
-            name: "Mae Barton3",
-            listId: "1",
-            cardOrder: [],
-        },
-        {
-            boardId: "boardId 3",
-            name: "Mae Barton3",
-            listId: "1",
-            cardOrder: [],
-        },
-        {
-            boardId: "boardId 3",
-            name: "Mae Barton3",
-            listId: "1",
-            cardOrder: [],
-        },
-        {
-            boardId: "boardId 3",
-            name: "Mae Barton3",
-            listId: "1",
-            cardOrder: [],
-        },
-        {
-            boardId: "boardId 3",
-            name: "Mae Barton3",
-            listId: "1",
-            cardOrder: [],
-        },
-        {
-            boardId: "boardId 3",
-            name: "Mae Barton3",
-            listId: "1",
-            cardOrder: [],
-        },
-        {
-            boardId: "boardId 3",
-            name: "Mae Barton3",
-            listId: "1",
-            cardOrder: [],
-        },
-    ]);
+        dispatch(setColumns(newColumns));
 
-    const onColumnDrop = (dropResult: any) => {
-        console.log(dropResult);
+        try {
+            dispatch(updateListOrder(listOrder));
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const boardResponse = await boardApi.updateBoard(
+                currentBoard.id.toString(),
+                {
+                    listOrder: listOrder,
+                }
+            );
+        } catch (error) {
+            alert(error);
+            //set old state when having error
+            dispatch(setBoard(boards));
+            dispatch(setColumns(columns));
+        }
     };
 
-    const onHandleAddColumn = () => {
+    const onHandleAddColumn = async () => {
         if (inputRef.current.value !== "") {
-            console.log(inputRef.current.value);
-            inputRef.current.value = "";
-            //Handle data
+            try {
+                const newColumn: any = {
+                    boardId: currentBoard.id,
+                    name: inputRef.current.value,
+                    cardOrder: [],
+                    id: null,
+                };
+                const cResonpse = await columnApi.createColumn(newColumn);
+                const columnResponse: any = cResonpse;
+
+                let getListOrder = columns.map((c: ColumnType) => c.id);
+                getListOrder.push(columnResponse.id);
+                console.log(getListOrder);
+                const boardResponse = await boardApi.updateBoard(
+                    currentBoard.id,
+                    {
+                        listOrder: getListOrder,
+                    }
+                );
+                dispatch(addColumn(columnResponse));
+                dispatch(updateListOrder(boardResponse));
+
+                inputRef.current.value = "";
+            } catch (error) {
+                alert(error);
+                dispatch(setBoard(boards));
+                dispatch(setColumns(columns));
+            }
         }
         inputRef.current.focus();
+    };
+    const onHandleDeleteColumn = async (columnId: String) => {
+        try {
+            const columnResponse = await columnApi.deleteColumn(columnId);
+
+            //---------------Backend-------------
+            // Get all card by column id then delete card
+            let currentCards = cards.filter(
+                (card: Card) => card.listId === columnId
+            );
+            for (let i = 0; i < currentCards.length; i++) {
+                const cardResponse = await cardApi.deleteCard(
+                    currentCards[i].id.toString()
+                );
+            }
+            dispatch(removeCardByColumnId(columnId));
+            //----------------------------------
+
+            // Update ListOrder
+            let newListOrder = columns
+                .filter((c: ColumnType) => {
+                    return c.id !== columnId;
+                })
+                .map((c: ColumnType) => c.id);
+            const boardResponse = await boardApi.updateBoard(currentBoard.id, {
+                listOrder: newListOrder,
+            });
+            dispatch(removeColumn(columnId));
+            dispatch(updateListOrder(boardResponse));
+        } catch (error) {
+            alert(error);
+            dispatch(setBoard(boards));
+            dispatch(setColumns(columns));
+            dispatch(setCard(cards));
+        }
     };
 
     const onKeyDownHandle = (event: React.KeyboardEvent<any>) => {
@@ -246,72 +286,78 @@ const BoardContent = () => {
             setAddColumnButton(false);
         }
     };
+
     return (
         <BoardContainerWrapper>
-            <BoardContainer
-                id='board'
-                className='collapsed-workspace-nav u-fancy-scrollbar'
-            >
-                <Container
-                    orientation='horizontal'
-                    onDrop={onColumnDrop}
-                    getChildPayload={(index) => columns[index]}
-                    dragHandleSelector='.column-drag-handle'
-                    dropPlaceholder={{
-                        animationDuration: 150,
-                        showOnTop: true,
-                        className: "column-drop-preview",
-                    }}
+            {columns && (
+                <BoardContainer
+                    id='board'
+                    className='collapsed-workspace-nav u-fancy-scrollbar'
                 >
-                    {columns.map((column, index) => (
-                        <Draggable key={index}>
-                            <Column column={column} />
-                        </Draggable>
-                    ))}
-                </Container>
-                <AddColumnWrapper>
-                    {!addColumnButton ? (
-                        <AddColumnButton
-                            onClick={() => {
-                                setAddColumnButton(true);
-                                setTimeout(() => {
-                                    inputRef.current.focus();
-                                }, 1);
-                            }}
-                        >
-                            <PlusOutlined />
-                            Add another list
-                        </AddColumnButton>
-                    ) : (
-                        <FormAddColumn>
-                            <input
-                                name='column'
-                                id='1'
-                                spellCheck='false'
-                                ref={inputRef}
-                                placeholder='Enter a title for this card'
-                                onKeyDown={onKeyDownHandle}
-                            ></input>
-                            <div className='button-action'>
-                                <button
-                                    className='btn-card add-card-btn'
-                                    onClick={onHandleAddColumn}
-                                >
-                                    Add list
-                                </button>
-                                <button
-                                    className='btn-card close-form'
-                                    onClick={() => {
-                                        setAddColumnButton(false);
-                                    }}
-                                >
-                                    <CloseOutlined />
-                                </button>
-                            </div>
-                        </FormAddColumn>
-                    )}
-                </AddColumnWrapper>
-            </BoardContainer>
+                    <Container
+                        orientation='horizontal'
+                        onDrop={(dropResult) => onColumnDrop(dropResult)}
+                        getChildPayload={(index) => columns[index]}
+                        dragHandleSelector='.column-drag-handle'
+                        dropPlaceholder={{
+                            animationDuration: 150,
+                            showOnTop: true,
+                            className: "column-drop-preview",
+                        }}
+                    >
+                        {columns.map((column: any, index: number) => (
+                            <Draggable key={index}>
+                                <Column
+                                    column={column}
+                                    deleteColumn={onHandleDeleteColumn}
+                                />
+                            </Draggable>
+                        ))}
+                    </Container>
+                    <AddColumnWrapper>
+                        {!addColumnButton ? (
+                            <AddColumnButton
+                                onClick={() => {
+                                    setAddColumnButton(true);
+                                    setTimeout(() => {
+                                        inputRef.current.focus();
+                                    }, 1);
+                                }}
+                            >
+                                <PlusOutlined />
+                                Add another list
+                            </AddColumnButton>
+                        ) : (
+                            <FormAddColumn>
+                                <input
+                                    name='column'
+                                    id='1'
+                                    spellCheck='false'
+                                    ref={inputRef}
+                                    placeholder='Enter a title for this card'
+                                    onKeyDown={onKeyDownHandle}
+                                ></input>
+                                <div className='button-action'>
+                                    <button
+                                        className='btn-card add-card-btn'
+                                        onClick={onHandleAddColumn}
+                                    >
+                                        Add list
+                                    </button>
+                                    <button
+                                        className='btn-card close-form'
+                                        onClick={() => {
+                                            setAddColumnButton(false);
+                                        }}
+                                    >
+                                        <CloseOutlined />
+                                    </button>
+                                </div>
+                            </FormAddColumn>
+                        )}
+                    </AddColumnWrapper>
+                </BoardContainer>
+            )}
         </BoardContainerWrapper>
     );
 };

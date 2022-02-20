@@ -1,83 +1,62 @@
-import { useRef, useState } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
-import boardApi from "../../api/boardApi";
-import { updateBoardName } from "../../app/boards/BoardSlice";
-import { useAppDispatch } from "../../app/store";
 
-const InputStyle = styled.input`
-    background-color: #fff6;
-    border: 0;
+const TextArea = styled.textarea`
+    overflow: hidden;
+    overflow-wrap: break-word;
+    height: 28px;
+    background: transparent;
     border-radius: 3px;
-    padding: 8px 12px;
-    max-width: 250px;
-    &:hover {
-        background-color: #ffffff52;
-        cursor: pointer;
-    }
-
+    box-shadow: none;
+    font-weight: 600;
+    margin: -4px 0;
+    max-height: 256px;
+    min-height: 20px;
+    padding: 4px 8px;
+    resize: none;
+    outline: none;
+    border: none;
+    line-height: 20px;
+    width: 100%;
+    font-size: 14px;
     &:focus {
         background-color: #fff;
-        color: #172b4d;
-        outline: 0;
         box-shadow: inset 0 0 0 2px #0079bf;
-        cursor: auto;
     }
 `;
 
-const InlineEdit = ({ boardCurrent }: any) => {
-    const [editingValue, setEditingValue] = useState(boardCurrent.name);
-    const dispatch = useAppDispatch();
-
-    let width = (editingValue.length + 10) * 8;
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setEditingValue(event.target.value);
-    };
-
+const InlineEdit = ({ inputHeaderRef, onBlur, value, setValue }: any) => {
     const onKeyDown = (event: React.KeyboardEvent<any>) => {
         if (event.key === "Enter" || event.key === "Escape") {
-            if (inputRef.current !== null) {
-                inputRef.current.blur();
+            if (inputHeaderRef.current !== null) {
+                inputHeaderRef.current.blur();
             }
         }
     };
-
-    const onBlur = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(123);
-        let newName = event.target.value;
-        if (newName !== boardCurrent.name) {
-            try {
-                const response: any = await boardApi.updateBoard(
-                    boardCurrent.id,
-                    {
-                        name: newName,
-                    }
-                );
-                dispatch(
-                    updateBoardName({
-                        id: boardCurrent.boardId,
-                        data: response.name,
-                    })
-                );
-                setEditingValue(newName);
-            } catch (error) {
-                alert(error);
-            }
+    useEffect(() => {
+        inputHeaderRef.current.style.height = "0px";
+        const scrollHeight = inputHeaderRef.current.scrollHeight;
+        inputHeaderRef.current.style.height = scrollHeight + "px";
+        if (scrollHeight >= 256) {
+            inputHeaderRef.current.style.overflow = "auto";
         }
-    };
-
+    }, [value, inputHeaderRef]);
     return (
-        <InputStyle
-            type='text'
-            ref={inputRef}
-            aria-label='Field name'
-            value={editingValue}
-            onChange={onChange}
-            onKeyDown={onKeyDown}
+        <TextArea
+            name='inline-edit'
+            id='1'
+            spellCheck='false'
+            onChange={(e) => {
+                setValue(e.target.value);
+            }}
+            value={value}
+            ref={inputHeaderRef}
             onBlur={onBlur}
-            style={{ width: width + "px" }}
-        />
+            dir='auto'
+            maxLength={512}
+            rows={1}
+            onKeyDown={onKeyDown}
+        ></TextArea>
     );
 };
 
