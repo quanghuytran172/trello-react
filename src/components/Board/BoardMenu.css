@@ -1,0 +1,8 @@
+.ant-drawer-header .ant-drawer-close {
+    position: absolute;
+    right: 0;
+}
+
+.ant-drawer-header .ant-drawer-title {
+    text-align: center;
+}

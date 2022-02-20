@@ -1,16 +1,23 @@
-.logo {
-    float: left;
-    width: 120px;
-    height: 31px;
-    margin: 16px 24px 16px 0;
-    background: rgba(255, 255, 255, 0.3);
+body {
+    color: #172b4d;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    height: 100vh;
+    max-height: 100vh;
+    min-height: 100vh;
 }
 
-.ant-row-rtl .logo {
-    float: right;
-    margin: 16px 0 16px 24px;
+#root {
+    height: 100%;
 }
 
-.site-layout-background {
-    background: #fff;
+.App {
+    height: 100%;
+    overflow: hidden;
 }

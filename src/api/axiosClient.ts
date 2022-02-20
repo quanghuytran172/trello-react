@@ -1,3 +1,4 @@
+import firebase from "../firebase/config";
 import axios from "axios";
 import queryString from "query-string";
 
@@ -9,13 +10,18 @@ const axiosClient = axios.create({
     paramsSerializer: (params) => queryString.stringify(params),
 });
 
-axiosClient.interceptors.request.use(async (config) => {
+axiosClient.interceptors.request.use(async (config: any) => {
+    const currentUser = firebase.auth().currentUser;
+    if (currentUser) {
+        const token = await currentUser.getIdToken();
+        config.headers.Authorization = `Bearer ${token}`;
+    }
     // Handle token here ...
     return config;
 });
 
 axiosClient.interceptors.response.use(
-    (response) => {
+    (response: any) => {
         if (response && response.data) {
             return response.data;
         }

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/icons": "^4.7.0",
     "@reduxjs/toolkit": "^1.7.1",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
@@ -13,6 +14,7 @@
     "@types/react-dom": "^17.0.9",
     "antd": "^4.18.3",
     "axios": "^0.24.0",
+    "firebase": "^9.6.3",
     "query-string": "^7.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -20,9 +22,12 @@
     "react-router-dom": "6",
     "react-scripts": "5.0.0",
     "react-smooth-dnd": "^0.11.1",
+    "redux-persist": "^6.0.0",
     "redux-typescript": "^1.2.1",
+    "shortid": "^2.2.16",
     "styled-components": "^5.3.3",
     "typescript": "^4.4.2",
+    "unsplash-js": "^7.0.15",
     "web-vitals": "^2.1.0"
   },
   "scripts": {
@@ -48,5 +53,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/shortid": "^0.0.29",
+    "@types/styled-components": "^5.1.20"
   }
 }
