@@ -294,6 +294,7 @@ const CardDetailModal = ({
             onOk: () => {
                 cardApi.deleteCard(card.id).then((res: any) => {
                     dispatch(removeCard(card.id));
+                    setIsCardDetailOpen(false);
                 });
             },
         });
