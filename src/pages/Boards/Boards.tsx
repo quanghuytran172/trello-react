@@ -22,6 +22,9 @@ const BoardContainer = styled.div`
     h2 {
         color: #5e6c84;
     }
+    .guest-workspaces {
+        margin-top: 50px;
+    }
 `;
 
 const AddBoardButton = styled.button`
@@ -95,21 +98,23 @@ const Boards: React.FC = () => {
             <BoardContainer>
                 <h2>YOUR WORKSPACES</h2>
                 <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-                    {boards.map((board: Board, index: number) => (
-                        <Col
-                            xs={24}
-                            sm={12}
-                            xl={4}
-                            md={6}
-                            className='col-item'
-                            key={index}
-                        >
-                            <BoardItem
-                                board={board}
-                                linkTo={`/b/${board.boardId}/${board.name}`}
-                            />
-                        </Col>
-                    ))}
+                    {boards
+                        .filter((board: Board) => board.uuidUser === uuidUser)
+                        .map((board: Board, index: number) => (
+                            <Col
+                                xs={24}
+                                sm={12}
+                                xl={4}
+                                md={6}
+                                className='col-item'
+                                key={index}
+                            >
+                                <BoardItem
+                                    board={board}
+                                    linkTo={`/b/${board.boardId}/${board.name}`}
+                                />
+                            </Col>
+                        ))}
 
                     <Col xs={24} sm={12} xl={4} md={6} className='col-item'>
                         <AddBoardButton onClick={openAddModal}>
@@ -119,7 +124,27 @@ const Boards: React.FC = () => {
                         </AddBoardButton>
                     </Col>
                 </Row>
+                <h2 className='guest-workspaces'>GUEST WORKSPACES</h2>
 
+                <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+                    {boards
+                        .filter((board: Board) => board.uuidUser !== uuidUser)
+                        .map((board: Board, index: number) => (
+                            <Col
+                                xs={24}
+                                sm={12}
+                                xl={4}
+                                md={6}
+                                className='col-item'
+                                key={index}
+                            >
+                                <BoardItem
+                                    board={board}
+                                    linkTo={`/b/${board.boardId}/${board.name}`}
+                                />
+                            </Col>
+                        ))}
+                </Row>
                 <AddBoardModal />
             </BoardContainer>
         </div>

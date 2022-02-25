@@ -11,7 +11,7 @@ const boardApi = {
         return axiosClient.delete(url);
     },
     getAllBoardByUser: (id: String) => {
-        const url = `/board?uuidUser=${id}`;
+        const url = `/board?accessId_like=${id}`;
         return axiosClient.get(url);
     },
     getBoardById: (id: any) => {

@@ -45,6 +45,14 @@ const boards = createSlice({
                 return board;
             });
         },
+        updateAccessId: (state, action) => {
+            const boardIndexUpdate = state.boards.findIndex(
+                (i: any) => i.id === action.payload.id
+            );
+            if (boardIndexUpdate >= 0) {
+                state.boards[boardIndexUpdate].accessId = action.payload.data;
+            }
+        },
     },
 });
 
@@ -56,5 +64,6 @@ export const {
     updateBoardName,
     updateBoardImage,
     updateListOrder,
+    updateAccessId,
 } = actions;
 export default reducer;

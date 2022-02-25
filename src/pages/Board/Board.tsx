@@ -1,9 +1,4 @@
-import {
-    AntDesignOutlined,
-    DashOutlined,
-    UserAddOutlined,
-    UserOutlined,
-} from "@ant-design/icons";
+import { DashOutlined, UserAddOutlined } from "@ant-design/icons";
 import { Avatar, Button, Divider, Tooltip } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -14,7 +9,7 @@ import { addBoard } from "../../app/boards/BoardSlice";
 import { RootState, useAppDispatch } from "../../app/store";
 import Header from "../../components/Header/Header";
 import BoardNameInline from "../../components/InlineEdit/BoardNameInline";
-import { Board as BoardType } from "../../app/types/index";
+import { Board as BoardType, User } from "../../app/types/index";
 import BoardMenu from "../../components/Board/BoardMenu";
 import BoardContent from "../../components/Board/BoardContent/BoardContent";
 import columnApi from "../../api/columnApi";
@@ -22,6 +17,8 @@ import { setColumns } from "../../app/columns/ColumnSlice";
 import { mapOrder } from "../../utilities/sortArr";
 import cardApi from "../../api/cardApi";
 import { setCard } from "../../app/cards/CardSlice";
+import InviteMembers from "../../components/Modals/InviteMembers";
+import userApi from "../../api/userApi";
 
 const BoardWrapper = styled.div`
     display: flex;
@@ -91,9 +88,14 @@ const ShowMenuButton = styled.button`
 
 const Board: React.FC = () => {
     const [isVisibleBoardMenu, setIsVisibleBoardMenu] = useState(false);
-    const { boards } = useSelector((state: RootState) => state.boards);
+    const [isVisibleInviteModal, setIsVisibleInviteModal] = useState(false);
 
+    const [currentMember, setCurrentMember] = useState([]);
     const [boardCurrent, setBoardCurrent] = useState<BoardType>();
+    const { boards } = useSelector((state: RootState) => state.boards);
+    const {
+        user: { uuidUser },
+    } = useSelector((state: RootState) => state.auth);
 
     let { id } = useParams();
     const dispatch = useAppDispatch();
@@ -105,7 +107,8 @@ const Board: React.FC = () => {
     useEffect(() => {
         const checkParamsGetBoard = async () => {
             let findBoard = boards.find(
-                (board: any) => board.boardId.toString() === id?.toString()
+                (board: BoardType) =>
+                    board.boardId.toString() === id?.toString()
             );
 
             if (!findBoard) {
@@ -115,8 +118,14 @@ const Board: React.FC = () => {
                         id?.toString()
                     );
                     if (response.length > 0) {
-                        findBoard = response[0];
-                        dispatch(addBoard(findBoard));
+                        if (response[0].accessId.includes(uuidUser)) {
+                            findBoard = response[0];
+                            dispatch(addBoard(findBoard));
+                        } else {
+                            alert(
+                                "You don't have permission to access this board"
+                            );
+                        }
                     } else {
                         history("/notfound");
                     }
@@ -135,9 +144,20 @@ const Board: React.FC = () => {
         };
 
         checkParamsGetBoard();
-    }, [dispatch, boardCurrent, history, boards, id]);
+    }, [dispatch, boardCurrent, history, boards, id, uuidUser]);
 
     useEffect(() => {
+        const fetchCurrentMember = async () => {
+            try {
+                const response: any = await userApi.getAllUser();
+                const currentMemberFilter = response.filter((user: User) =>
+                    boardCurrent?.accessId.includes(user.uuidUser)
+                );
+                setCurrentMember(currentMemberFilter);
+            } catch (error) {
+                alert(error);
+            }
+        };
         const fetchColumn = async (boardId: String) => {
             try {
                 const response = await columnApi.getAllColumnByBoardId(
@@ -165,11 +185,16 @@ const Board: React.FC = () => {
         };
 
         //call api get list,card
-        if (boardCurrent && boardCurrent.id) {
+        if (
+            boardCurrent &&
+            boardCurrent.id &&
+            boardCurrent.accessId.includes(uuidUser)
+        ) {
+            fetchCurrentMember();
             fetchColumn(boardCurrent.id);
             fetchCard(boardCurrent.id);
         }
-    }, [dispatch, boardCurrent]);
+    }, [dispatch, boardCurrent, uuidUser]);
     return (
         <>
             <Header />
@@ -180,6 +205,7 @@ const Board: React.FC = () => {
                             <div className='board-name'>
                                 <BoardNameInline boardCurrent={boardCurrent} />
                                 <Divider type='vertical' />
+
                                 <Avatar.Group
                                     maxCount={2}
                                     maxStyle={{
@@ -187,26 +213,28 @@ const Board: React.FC = () => {
                                         backgroundColor: "#fde3cf",
                                     }}
                                 >
-                                    <Avatar src='https://joeschmoe.io/api/v1/random' />
-                                    <Avatar
-                                        style={{ backgroundColor: "#f56a00" }}
-                                    >
-                                        K
-                                    </Avatar>
-                                    <Tooltip title='Ant User' placement='top'>
-                                        <Avatar
-                                            style={{
-                                                backgroundColor: "#87d068",
-                                            }}
-                                            icon={<UserOutlined />}
-                                        />
-                                    </Tooltip>
-                                    <Avatar
-                                        style={{ backgroundColor: "#1890ff" }}
-                                        icon={<AntDesignOutlined />}
-                                    />
+                                    {currentMember.map((member: User) => (
+                                        <Tooltip
+                                            title={member.displayName}
+                                            key={member.uuidUser.toString()}
+                                        >
+                                            <Avatar src={member.photoURL}>
+                                                {member.photoURL
+                                                    ? ""
+                                                    : member.displayName
+                                                          ?.charAt(0)
+                                                          ?.toUpperCase()}
+                                            </Avatar>
+                                        </Tooltip>
+                                    ))}
                                 </Avatar.Group>
-                                <Button type='primary' className='add-member'>
+                                <Button
+                                    type='primary'
+                                    className='add-member'
+                                    onClick={() => {
+                                        setIsVisibleInviteModal(true);
+                                    }}
+                                >
                                     <UserAddOutlined />
                                     Invite
                                 </Button>
@@ -228,6 +256,11 @@ const Board: React.FC = () => {
                         </BoardTop>
                         <BoardContent currentBoard={boardCurrent} />
                     </BoardMainWrapper>
+                    <InviteMembers
+                        visible={isVisibleInviteModal}
+                        setVisible={setIsVisibleInviteModal}
+                        currentBoard={boardCurrent}
+                    />
                 </BoardWrapper>
             )}
         </>

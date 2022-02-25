@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { Card as CardType } from "../../app/types";
 import CardDetailModal from "../Modals/CardDetailModal";
 
+interface CardProps {
+    card: CardType;
+    columnName: String;
+}
 const CardItem = styled.div`
     background-color: #fff;
     border-radius: 3px;
@@ -21,8 +26,7 @@ const CardItem = styled.div`
     }
 `;
 
-const CardName = styled.div``;
-const Card = ({ card, columnName }: any) => {
+const Card = ({ card, columnName }: CardProps) => {
     const [isCardDetailOpen, setIsCardDetailOpen] = useState(false);
     return (
         <>

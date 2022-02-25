@@ -187,18 +187,20 @@ const Column = ({ column, deleteColumn }: any) => {
     const { cards } = useSelector((state: RootState) => state.cards);
 
     useEffect(() => {
-        let cardByColumn = cards.filter((c: any) => c.listId === column.id);
+        let cardByColumn = cards.filter(
+            (c: CardType) => c.listId === column.id
+        );
         cardByColumn = mapOrder(cardByColumn, column.cardOrder, "id");
         setCardsByColumn(cardByColumn);
     }, [cards, column.cardOrder, column.id]);
-    const onCardDrop = async (columnId: any, dropResult: any) => {
+    const onCardDrop = async (columnId: String, dropResult: any) => {
         if (
             dropResult.removedIndex !== null ||
             dropResult.addedIndex !== null
         ) {
             let newCards = [...cardsByColumn];
             newCards = applyDrag(newCards, dropResult);
-            const newCardOrder = newCards.map((i: any) => i.id);
+            const newCardOrder = newCards.map((i: CardType) => i.id);
             dispatch(
                 updateCardOrder({
                     id: columnId,
@@ -384,7 +386,7 @@ const Column = ({ column, deleteColumn }: any) => {
                     }}
                     dropPlaceholderAnimationDuration={200}
                 >
-                    {cardsByColumn.map((card: CardType, index: any) => (
+                    {cardsByColumn.map((card: CardType, index: number) => (
                         <Draggable key={index}>
                             <Card card={card} columnName={column.name} />
                         </Draggable>

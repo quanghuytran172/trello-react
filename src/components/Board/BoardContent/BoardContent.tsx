@@ -15,7 +15,7 @@ import {
     setColumns,
 } from "../../../app/columns/ColumnSlice";
 import { RootState, useAppDispatch } from "../../../app/store";
-import { Card, Column as ColumnType } from "../../../app/types";
+import { Board, Card, Column as ColumnType } from "../../../app/types";
 import { applyDrag } from "../../../utilities/dragDrop";
 import Column from "../../Column/Column";
 
@@ -192,7 +192,7 @@ const BoardContent = ({ currentBoard }: any) => {
             dispatch(updateListOrder(listOrder));
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const boardResponse = await boardApi.updateBoard(
-                currentBoard.id.toString(),
+                currentBoard?.id.toString(),
                 {
                     listOrder: listOrder,
                 }
@@ -219,7 +219,6 @@ const BoardContent = ({ currentBoard }: any) => {
 
                 let getListOrder = columns.map((c: ColumnType) => c.id);
                 getListOrder.push(columnResponse.id);
-                console.log(getListOrder);
                 const boardResponse = await boardApi.updateBoard(
                     currentBoard.id,
                     {

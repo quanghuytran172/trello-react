@@ -11,6 +11,14 @@ const userApi = {
         const url = `/users?uuid=${uuid}`;
         return axiosClient.get(url);
     },
+    getAllUser: () => {
+        const url = "/users";
+        return axiosClient.get(url);
+    },
+    searchEmailUser: (search: String) => {
+        const url = `/users?email_like=${search}`;
+        return axiosClient.get(url);
+    },
 };
 
 export default userApi;

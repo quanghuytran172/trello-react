@@ -24,7 +24,7 @@ const AddBoardModal = () => {
                     uuidUser: user.uuidUser,
                     name: titleInput,
                     createdAt: date,
-                    accessId: [],
+                    accessId: [user.uuidUser],
                     imageURL:
                         "https://trello-backgrounds.s3.amazonaws.com/SharedBackground/2106x1600/57727b42ab34b4fef30c3ed8ba4a71f3/photo-1643330683233-ff2ac89b002c.jpg",
                     listOrder: [],
@@ -36,6 +36,7 @@ const AddBoardModal = () => {
             } catch (error) {
                 alert(error);
             }
+            setTitleInput("");
             dispatch(toggleAddModal(false));
         }
     };
